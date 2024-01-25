@@ -1,0 +1,544 @@
+"{{{ .o oOOOOOOOo                                            0OOOo
+"    Ob.OOOOOOOo  OOOo.      oOOo.                      .adOOOOOOO
+"    OboO000000000000.OOo. .oOOOOOo.    OOOo.oOOOOOo..0000000000OO
+"    OOP.oOOOOOOOOOOO 0POOOOOOOOOOOo.   `0OOOOOOOOOP,OOOOOOOOOOOB'
+"    `O'OOOO'     `OOOOo"OOOOOOOOOOO` .adOOOOOOOOO"oOOO'    `OOOOo
+"    .OOOO'            `OOOOOOOOOOOOOOOOOOOOOOOOOO'            `OO
+"    OOOOO                 '"OOOOOOOOOOOOOOOO"`                oOO
+"   oOOOOOba.                .adOOOOOOOOOOba               .adOOOOo.
+"  oOOOOOOOOOOOOOba.    .adOOOOOOOOOO@^OOOOOOOba.     .adOOOOOOOOOOOO
+"  OOOOOOOOOOOOOOOOO.OOOOOOOOOOOOOO"`  '"OOOOOOOOOOOOO.OOOOOOOOOOOOOO
+"    :            .oO%OOOOOOOOOOo.OOOOOO.oOOOOOOOOOOOO?         .
+"    Y           'OOOOOOOOOOOOOO: .oOOo. :OOOOOOOOOOO?'         :`
+"    .            oOOP"%OOOOOOOOoOOOOOOO?oOOOOO?OOOO"OOo
+"                 '%o  OOOO"%OOOO%"%OOOOO"OOOOOO"OOO':
+"                      `$"  `OOOO' `O"Y ' `OOOO'  o             .
+"    .                  .     OP"          : o     .
+"
+"=====================================
+"        ┌─────────────────┐
+" vimrc  │ Sun 23 Feb 2020 │
+"        └─────────────────┘
+"=====================================
+"}}}
+"=====================================
+"	MAIN                             {{{
+"=====================================
+"
+syntax enable
+syntax on
+set mmp=2000000
+set wildmenu
+set shortmess+=I
+set guioptions-=T
+set lazyredraw
+set showmatch
+set whichwrap+=<,>,h,l
+set ts=2 sts=2 expandtab
+set autoindent
+set wrapscan
+set nobackup
+set relativenumber
+set number
+set lbr!
+set ruler!
+set history=200
+set report=0
+set encoding=utf-8
+set nrformats+=alpha
+set ff=unix
+exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
+set backspace=indent,eol,start
+set guifont=Maple\ Mono\ NF:h17
+if has('nvim')
+  set guifont=Maple\ Mono\ NF:h17
+endif
+set linespace=4
+set ignorecase
+set smartcase
+set foldenable
+set foldlevelstart=10
+set foldmethod=marker
+set hid
+set laststatus=2
+set diffopt=filler,iwhite,vertical
+set formatoptions+=tqn
+set formatlistpat=^\\s*\\(\\d\\+\\\|[a-z]\\)[\\].)]\\s*
+set nopaste
+if !has('nvim')
+  set cm=blowfish2
+endif
+if has("gui_running")
+  set scrolloff=3
+  set lines=75
+  set columns=100
+endif
+set modelines=1
+"
+"}}}
+"=====================================
+" to use fzf plugin                {{{
+"=====================================
+set rtp+=/opt/homebrew/bin/fzf
+let g:nv_search_paths = ["~/Documents"]
+"
+"}}}
+"=====================================
+"	Vertical block                   {{{
+"=====================================
+"
+nnoremap <expr> vm <SID>VisualVLine()
+fun! s:VisualVLine() abort
+    let [_, lnum, col; _] = getcurpos()
+    let line = getline('.')
+    let col += strdisplaywidth(line) - strwidth(line)
+    let [from, to] = [lnum, lnum]
+    while strdisplaywidth(getline(from - 1)) >= col
+        let from -= 1
+    endwhile
+    while strdisplaywidth(getline(to + 1)) >= col
+        let to += 1
+    endwhile
+    return "\<C-v>" .
+                \ (to == lnum ? '' : (to - lnum . 'jo')) .
+                \ (from == lnum ? '' : (lnum - from . 'k'))
+endfun
+"
+"}}}
+"=====================================
+"	Automatisation                   {{{
+"=====================================
+"
+if has("autocmd")
+	autocmd BufWritePost .vimrc source %
+endif
+"
+"}}}
+"=====================================
+" Which-key                        {{{
+"=====================================
+"
+let g:which_key_map = {}
+let g:which_key_map['w'] = {
+      \ 'name' : '+windows' ,
+      \ 'w' : ['<C-W>w'     , 'other-window']          ,
+      \ 'd' : ['<C-W>c'     , 'delete-window']         ,
+      \ '-' : ['<C-W>s'     , 'split-window-below']    ,
+      \ '|' : ['<C-W>v'     , 'split-window-right']    ,
+      \ '2' : ['<C-W>v'     , 'layout-double-columns'] ,
+      \ 'h' : ['<C-W>h'     , 'window-left']           ,
+      \ 'j' : ['<C-W>j'     , 'window-below']          ,
+      \ 'l' : ['<C-W>l'     , 'window-right']          ,
+      \ 'k' : ['<C-W>k'     , 'window-up']             ,
+      \ 'H' : ['<C-W>5<'    , 'expand-window-left']    ,
+      \ 'J' : [':resize +5'  , 'expand-window-below']   ,
+      \ 'L' : ['<C-W>5>'    , 'expand-window-right']   ,
+      \ 'K' : [':resize -5'  , 'expand-window-up']      ,
+      \ '=' : ['<C-W>='     , 'balance-window']        ,
+      \ 's' : ['<C-W>s'     , 'split-window-below']    ,
+      \ 'v' : ['<C-W>v'     , 'split-window-below']    ,
+      \ '?' : ['Windows'    , 'fzf-window']            ,
+      \ }
+call which_key#register('<Space>', "g:which_key_map")
+nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+"
+"}}}
+"=====================================
+" Recutils                         {{{
+"=====================================
+"
+vmap <F8> :call MyLetter()<cr>vipJ0i!recins -t Letter <esc><cr>bJY<esc>:<C-r>"
+vmap <F9> :call MyRecipe()<cr>vipJ0i!recins -t Recipe <esc><cr>bJY<esc>:<C-r>"
+nnoremap <F10> :!recsel -t Recipe -e "Title ~ '\\.*<cword>.*'" ~/Sync/recipes.rec<cr>
+nnoremap <D-F10> :!recsel -t Recipe -P Title ~/Sync/recipes.rec<cr>
+"
+"}}}
+"=====================================
+" Startify                         {{{
+"=====================================
+"
+if !has('nvim')
+  let g:startify_lists = [
+  \ { 'type': 'files', 'header': [' MRU'] },
+  \ { 'type': 'dir', 'header': [' MRU '. getcwd()] },
+  \ { 'type': 'sessions', 'header': [' Sessions'] },
+  \ { 'type': 'bookmarks', 'header': [' Bookmarks'] },
+  \ { 'type': 'commands', 'header': [' Commands'] },
+  \ ]
+  let g:startify_fortune_use_unicode = 1
+endif
+"
+"}}}
+"=====================================
+"	Asciidoc                         {{{
+"=====================================
+"
+au BufEnter,BufRead *.adoc setlocal foldmethod=expr
+au BufEnter,BufRead *.adoc setlocal foldexpr=Foldexpr_asciidoc(v:lnum)
+"
+autocmd BufRead *.adoc normal zM
+autocmd BufRead *.asciidoc normal zM
+"
+" }}}
+"=====================================
+"	Thesaurus                        {{{
+"=====================================
+"
+set thesaurus+=~/Sync/thesaurii.txt
+imap <C-t> <C-x><C-t>
+"
+" }}}
+"=====================================
+"	Footnotes (Asciidoc)             {{{
+" usage:
+" A statement.footnote[Clarification.]
+"=====================================
+"
+function! s:Footnote(note)
+  let s:footnote = ".footnote[".a:note."]"
+  let @m = s:footnote
+  norm "mpmm
+  $put = s:footnote.':'
+  norm `m
+endfunction
+
+command! -nargs=1 Footnote call s:Footnote("<args>")
+"}}}
+"=====================================
+"	Other filetypes                  {{{
+"=====================================
+"
+au BufNewFile,BufRead *.srt setf srt
+au BufNewFile,BufRead *.md setf markdown
+au BufNewFile,BufRead *.adoc setf asciidoc
+"
+" Process srt file
+nnoremap _z :set fenc=utf-8<cr>:set enc=utf-8<cr>:set nobomb<cr>
+"
+" Remove hearing-impaired
+nnoremap _s :%s/\[[:'0-9A-Za-zô\-\., ]\{1,}\]//g<cr>
+"
+" Remove hearing-impaired (SDH) subtitles
+"
+" removes one or more words in [], like: "[birds chirping]" incl. numbers, ô and - ,
+" :%s/\[[0-9A-Za-zô\-, ]\{1,}\]//g
+" removes one or more words in all caps in (), like: "(WHOOSHING)"
+" :%s/\v\([A-Z, ]{1,}\)//g<cr>
+" removes one or more words in all caps ending with :, like: "MICHAEL:"
+" :%s/\v([A-Z ]{1,}\w+):\ //g
+" removes one or more words in all caps with numbers ending with :, like: "MAN 1:"
+" :%s/\v([A-Z0-9 ]{1,}\w+):\ //g
+" removes dialogue lines which only have '-' with trailing whitespace
+" :%s/^-\ \{1,}$//g<cr>
+" removes dialogue lines which only have '-' and end with ^M
+" :%s/^-\r//g<cr>
+"
+"}}}
+"=====================================
+"	Colours                          {{{
+"=====================================
+"
+" let g:neodark#italics = 1
+" let g:dracula#italics = 1
+if strftime("%H") >= 17 && strftime("%H") <= 23
+  if has("gui_running")
+    colors catppuccin_mocha
+  endif
+else
+  let ayucolor="light"
+  " colors ayu
+  colors catppuccin_frappe
+endif
+"
+"}}}
+"=====================================
+"	UltiSnips                        {{{
+"=====================================
+"
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips/']
+let g:UltiSnipsExpandTrigger = '<tab>'
+let g:UltiSnipsListSnippets = '<c-tab>'
+let g:UltiSnipsJumpForwardTrigger = '<tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+"
+"}}}
+"=====================================
+"	Airline                          {{{
+"=====================================
+"
+if has("gui_running")
+  let g:airline_section_b = '%{VisualPercent()}'
+  let g:airline_powerline_fonts = 1
+endif
+"
+let g:airline_powerline_fonts = 1
+"
+"}}}
+"=====================================
+"	Navigation - main mappings       {{{
+"=====================================
+"
+let mapleader = "_"
+" highlight last inserted text
+nnoremap gV `[v`]
+map <DOWN> gj
+map <UP> gk
+imap <UP> <ESC>gki
+imap <DOWN> <ESC>gji
+map <C-Right> <ESC>:bn<CR>
+map <C-Left> <ESC>:bp<CR>
+" <F5> = toggle search highlighting
+nmap <F5> :set hls!<CR>
+" <F7> creates a numbered list with visual selection
+vmap <F7> :call NumberList()<cr>
+" <F3> takes a visual block and adds 'Ingredient:' upfront - for recipes
+vmap <F3> :call Ingredient()<cr>
+" <F4> takes a visual block and adds 'Ingredient:' upfront - for recipes
+vmap <F4> :call Method()<cr>
+"
+"}}}
+"=====================================
+"	Nerdtree                         {{{
+"=====================================
+nnoremap <leader>N :NERDTreeToggle<cr>
+"}}}
+"=====================================
+"	Unite                            {{{
+"=====================================
+"
+let g:unite_source_history_yank_enable = 1
+let g:unite_source_file_mru_long_limit = 1000
+let g:unite_source_directory_mru_long_limit = 1000
+let g:unite_prompt = '--> '
+"_r: look recursively for file
+nnoremap <leader>r :<C-u>Unite -start-insert file_rec<CR>
+"_f: Look for file
+nnoremap <leader>f :<C-u>Unite -start-insert file buffer<CR>
+"_m: most recently used files
+nnoremap <leader>m :<C-u>Unite file_mru<CR>
+"_y: look for yank history
+nnoremap <leader>y :<C-u>Unite history/yank<CR>
+"_o: provide a Unite outline
+nnoremap <leader>o :<C-u>Unite -complete outline<CR>
+"use tab to view other options
+"
+"}}}
+"=====================================
+" Calendar                         {{{
+"=====================================
+"
+let g:calendar_first_day = "monday"
+let g:calendar_date_endian = "little"
+let g:calendar_date_separator = "."
+let g:calendar_frame = "unicode"
+nnoremap <leader>q :Calendar -view=year -split=vertical -width=27<cr>
+"
+"}}}
+"=====================================
+"	Copy and paste & movement        {{{
+"=====================================
+"
+" copy (y) and paste (p) buffer to system clipboard
+"
+nnoremap <Space>y mqggVG"+y`q
+nnoremap <Space>p "+p
+" move entire lines with <Option>+<Control>+<Shift> (requires unimpaired)
+nmap <M-S-Up> [e
+nmap <M-S-Down> ]e
+vmap <M-S-Up> [egv
+vmap <M-S-Down> ]egv
+inoremap <M-S-Up> <Esc>:m-2<CR>==gi
+inoremap <M-S-Down> <Esc>:m+<CR>==gi
+"
+"}}}
+"=====================================
+"	Text management                  {{{
+"=====================================
+"
+nmap <leader>w :call TrimWhiteSpace()<cr>
+" _p reformats long wrapped lines with hardbreaks at 80 chars (requires par)
+nmap <leader>p :1,$!par -w80<cr>
+" _P join single lines into paragraphs with soft breaks and insert blank space (reverse of _p)
+nmap <leader>P :g/./,/^$/join<cr>:%s/\v(.*\n){1}/&\r<cr>
+" _c add one blank line every {1} lines to clean up tight text
+nmap <leader>c :%s/\v(.*\n){1}/&\r/gc
+" _t compress two or more white lines into one
+nmap _t :%s/^\n\{2}//
+"
+"}}}
+"=====================================
+"	Easy Align                       {{{
+"=====================================
+"
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
+"
+"}}}
+"=====================================
+"	Bullets                          {{{
+"=====================================
+"
+let g:bullets_enabled_file_types = ['asciidoc']
+let g:bullets_outline_levels = ['std*', 'std+', 'std-', 'num', 'abc', 'rom']
+"
+"}}}
+"=====================================
+"	Save work                        {{{
+"=====================================
+"
+" Append total editing time for the buffer at the end,
+" then ask for input on the name of the entry,
+"then prepend that with level 3 heading,
+"then append creation timestamp at the end
+"
+" nmap r> mqggVG"+yG<esc>:call Gettypex()<cr><esc>:w>> ~/Sync/recipes.adoc<cr>`q
+"
+nmap >> :set ft=asciidoc<cr><esc>:set ff=unix<cr><esc>mqggVG"+yGoNOTE: Editing time »»» <esc>:call Exec('BufTimer')<esc>A »»»<esc>GkkJJ<esc>:call Gettypex()<cr><esc>:call append(('$'), " ")<cr><esc>:w>> ~/Documents/reference/2024.adoc<cr>`q
+"
+"}}}
+"=====================================
+"	Contacts                         {{{
+"=====================================
+"
+nnoremap <leader>g <esc>:r!grep -i <cword> ~/.contacts<cr>
+"
+"}}}
+"=====================================
+" Abbreviations                    {{{
+"=====================================
+"
+" long timestamp
+inoremap <S-F2> <C-R>=strftime("%A %d %B %Y %H:%M:%S")<cr>
+" short timestamp
+inoremap <F2> <C-R>=strftime("%d %B %Y")<cr>
+"
+nnoremap md :set ft=markdown<cr>
+"
+nnoremap h1 VypVr=j
+nnoremap h2 VypVr-j
+nnoremap h3 VypVr+j
+" But most are in ultisnipns now
+"
+iabbrev sk ☠
+iabbrev tl ☏
+iabbrev wt ⚠
+iabbrev ss ⛩
+iabbrev cb 📝
+iabbrev wr 🔧
+iabbrev fr 🔥
+iabbrev ng 🍙
+"
+"}}}
+"=====================================
+" Autocompletion                   {{{
+"=====================================
+"
+inoremap <tab> <C-R>=SuperCleverTab()<cr>
+"
+"}}}
+"=====================================
+" Functions                        {{{
+"=====================================
+"
+" Function to obtain asciidoc folds
+"
+function! Foldexpr_asciidoc(lnum)
+  let l0 = getline(a:lnum)
+  if l0 =~ '^=\{1,5}\s\+\S.*$'
+    return '>'.matchend(l0, '^=\+')
+  else
+    return '='
+  endif
+endfunc
+function! TrimWhiteSpace()
+  %s/\s\+$//e
+endfunction
+"
+" Function to redirect output of command
+" Used to append (at current location) any output but I use it for BufTimer
+" Like this: :call Exec('BufTimer')<cr>
+"
+funct! Exec(command)
+    redir =>output
+    silent exec a:command
+    redir END
+    let @o = output
+    execute "put o"
+endfunct!
+"
+"Request user input when appending to done file for asciidoc
+"
+fun! Gettypex()
+    call inputsave()
+    let typex = input("»»» Entry title »»» ", "")
+    call inputrestore()
+		call append(0, " ")
+		call append(0, "=== [ " . strftime("%d %B %Y %X") . " ] " . typex )
+		call append(0, " ")
+endfun
+"
+" Functions - produce numbered list
+"
+fun! NumberList() range
+    let beginning=line("'<")
+    let ending=line("'>")
+    let difsize=ending-beginning +1
+    let pre=' '
+    while (beginning<=ending)
+    if match(difsize, '^9*$') == 0
+        let pre = pre . ' '
+    endif
+    call setline(ending, pre . difsize . ". " . getline(ending))
+    let ending=ending-1
+    let difsize=difsize-1
+    endwhile
+endfun
+"
+" Functions - create ingredients list
+"
+fun! Ingredient() range
+    let beginning=line("'<")
+    let ending=line("'>")
+    while (beginning<=ending)
+    call setline(ending, "Ingredient: " . getline(ending))
+    let ending=ending-1
+    endwhile
+endfun
+"
+" Functions - create ingredients list
+"
+fun! Method() range
+    let beginning=line("'<")
+    let ending=line("'>")
+    while (beginning<=ending)
+    call setline(ending, "Method: " . getline(ending))
+    let ending=ending-1
+    endwhile
+endfun
+"
+" Automate rec(ord)ins(ert)
+"
+fun! MyLetter() range
+  let first = line("'<")
+  let last = line("'>")
+    while (first <= last)
+      call setline(first, "-r \"" . getline(first) . "\"")
+      let first = first+1
+    endwhile
+  call setline(last, getline(last) . " ~/Sync/Consulate.rec")
+endfun
+"
+fun! MyRecipe() range
+  let first = line("'<")
+  let last = line("'>")
+    while (first <= last)
+      call setline(first, "-r \"" . getline(first) . "\"")
+      let first = first+1
+    endwhile
+  call setline(last, getline(last) . " ~/Sync/recipes.rec")
+endfun
+"}}}
+"=====================================
+
+

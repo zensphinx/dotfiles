@@ -3,6 +3,7 @@ if status is-interactive
 end
 
 zoxide init fish | source
+atuin init fish | source
 
 function rga-fzf
     set RG_PREFIX 'rga --files-with-matches'
